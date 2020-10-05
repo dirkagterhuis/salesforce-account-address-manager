@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>AddressCheckedWithGooglePlaceAPI__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>When true, the Account address has been checked using the Google Place API using the Company Address Manager</description>
+    <externalId>false</externalId>
+    <inlineHelpText>When true, the Account address has been checked using the Google Place API using the Company Address Manager</inlineHelpText>
+    <label>Address Checked With Google Place API</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Checkbox</type>
+</CustomField>
