@@ -13,7 +13,9 @@
                 key-field="id"
                 columns={columnsWithGetAddressButton}
                 data={dataWithoutAddress}
-                hide-checkbox-column=true>
+                hide-checkbox-column=true
+                show-row-number-column=true
+                onrowaction={callRowAction}>
             </lightning-datatable>
         </div>
     </lightning-card>
@@ -31,7 +33,8 @@
                 key-field="id"
                 columns={columns}
                 data={dataWithAddress}
-                hide-checkbox-column=true>
+                hide-checkbox-column=true
+                show-row-number-column=true>
             </lightning-datatable>
         </div>
     </lightning-card>

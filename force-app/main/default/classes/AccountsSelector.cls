@@ -29,7 +29,7 @@ public class AccountsSelector extends fflib_SObjectSelector {
     public Accounts selectByContainingAddress(Integer recordLimit, String orderByField, Boolean containingAddress) {
         String condition = containingAddress
             ? 'BillingStreet != null AND BillingPostalCode != null AND BillingCity != null AND BillingCountry != null'
-            : 'BillingStreet = null OR BillingPostalCode = null OR BillingCity = null OR BillingCountry = null';
+            : '(BillingStreet = null OR BillingPostalCode = null OR BillingCity = null OR BillingCountry = null) AND AddressCheckedWithGooglePlaceAPI__c = false';
         return new Accounts(
             (List<Account>) Database.query(
                 newQueryFactory()
