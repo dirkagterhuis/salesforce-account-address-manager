@@ -2,24 +2,6 @@
     <lightning-card>
         <div class="slds-var-p-around_medium">
             <div class="slds-text-heading_large slds-var-p-bottom_x-small">
-                Most recently edited companies with an address
-            </div>
-            <div class="slds-text-heading_small">
-                Up to {maxNumberOfAccountsWithAddress} most recently modified companies are shown for which have all of the billing street, zipcode, city and country are provided.
-            </div>
-        </div>
-        <div class="slds-var-p-around_small">
-            <lightning-datatable
-                key-field="id"
-                columns={columns}
-                data={dataWithAddress}
-                hide-checkbox-column=true>
-            </lightning-datatable>
-        </div>
-    </lightning-card>
-    <lightning-card>
-        <div class="slds-var-p-around_medium">
-            <div class="slds-text-heading_large slds-var-p-bottom_x-small">
                 Most recently created companies without an address
             </div>
             <div class="slds-text-heading_small">
@@ -31,6 +13,24 @@
                 key-field="id"
                 columns={columnsWithGetAddressButton}
                 data={dataWithoutAddress}
+                hide-checkbox-column=true>
+            </lightning-datatable>
+        </div>
+    </lightning-card>
+    <lightning-card>
+        <div class="slds-var-p-around_medium">
+            <div class="slds-text-heading_large slds-var-p-bottom_x-small">
+                Most recently edited companies with an address
+            </div>
+            <div class="slds-text-heading_small">
+                Up to {maxNumberOfAccountsWithAddress} most recently modified companies are shown for which have all of the billing street, zipcode, city and country are provided.
+            </div>
+        </div>
+        <div class="slds-var-p-around_small">
+            <lightning-datatable
+                key-field="id"
+                columns={columns}
+                data={dataWithAddress}
                 hide-checkbox-column=true>
             </lightning-datatable>
         </div>

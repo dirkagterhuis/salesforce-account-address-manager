@@ -1,6 +1,6 @@
 import { LightningElement, api, track } from 'lwc';
-import getNLastModifiedAccountsWithAddress from '@salesforce/apex/CompanyAddressManagerController.getNLastModifiedAccountsWithAddress';
 import getNLastCreatedAccountsWithoutAddress from '@salesforce/apex/CompanyAddressManagerController.getNLastCreatedAccountsWithoutAddress';
+import getNLastModifiedAccountsWithAddress from '@salesforce/apex/CompanyAddressManagerController.getNLastModifiedAccountsWithAddress';
 
 const columns = [
     { label: 'Company Name', fieldName: 'Name', sortable: true },
@@ -10,11 +10,11 @@ const columns = [
     { label: 'City', fieldName: 'BillingCity', sortable: true},
     { label: 'Country', fieldName: 'BillingCountry', sortable: true}
 ];
-const columnsWithGetAddressButton = [...columnsWithAddress, { label: 'Get Address', fieldName: 'TEST' }];
+const columnsWithGetAddressButton = [...columns, { label: 'Get Address', fieldName: 'TEST' }];
 
 export default class CompanyAddressManager extends LightningElement {
-    @api maxNumberOfAccountsWithAddress;
     @api maxNumberOfAccountsWithoutAddress;
+    @api maxNumberOfAccountsWithAddress;
     @track dataWithAddress;
     @track dataWithoutAddress;
 
@@ -23,13 +23,13 @@ export default class CompanyAddressManager extends LightningElement {
     columnsWithGetAddressButton = columnsWithGetAddressButton;
 
     async connectedCallback() {
-        const dataWithAddress = await getNLastModifiedAccountsWithAddress({
-            recordLimit: this.maxNumberOfAccountsWithAddress
-        });
-        this.dataWithAddress = dataWithAddress;
         const dataWitoutAddress = await getNLastCreatedAccountsWithoutAddress({
             recordLimit: this.maxNumberOfAccountsWithoutAddress
         });
         this.dataWithoutAddress = dataWitoutAddress;
+        const dataWithAddress = await getNLastModifiedAccountsWithAddress({
+            recordLimit: this.maxNumberOfAccountsWithAddress
+        });
+        this.dataWithAddress = dataWithAddress;
     }
 }

@@ -1,4 +1,14 @@
 public class AccountsSelector extends fflib_SObjectSelector {
+    @testVisible
+    private static AccountsSelector instance;
+
+    public static AccountsSelector getInstance() {
+        if (instance == null) {
+            instance = new AccountsSelector();
+        }
+        return instance;
+    }
+
     public List<Schema.SObjectField> getSObjectFieldList() {
         return new List<Schema.SObjectField>{
             Account.Name,
@@ -16,23 +26,18 @@ public class AccountsSelector extends fflib_SObjectSelector {
         return Account.sObjectType;
     }
 
-    public List<Account> selectWithAddressWithLimitAndOrderByDesc(Integer recordLimit, String orderByField) {
-        return (List<Account>) Database.query(
-            newQueryFactory()
-            .setCondition('BillingStreet != null AND BillingPostalCode != null AND BillingCity != null AND BillingCountry != null')
-            .setLimit(recordLimit)
-            .setOrdering(orderByField, fflib_QueryFactory.SortOrder.DESCENDING, true)
-            .toSOQL()
-        );
-    }
-
-    public List<Account> selectWithoutAddressWithLimitAndOrderByDesc(Integer recordLimit, String orderByField) {
-        return (List<Account>) Database.query(
-            newQueryFactory()
-            .setCondition('BillingStreet = null OR BillingPostalCode = null OR BillingCity = null OR BillingCountry = null')
-            .setLimit(recordLimit)
-            .setOrdering(orderByField, fflib_QueryFactory.SortOrder.DESCENDING, true)
-            .toSOQL()
+    public Accounts selectByContainingAddress(Integer recordLimit, String orderByField, Boolean containingAddress) {
+        String condition = containingAddress
+            ? 'BillingStreet != null AND BillingPostalCode != null AND BillingCity != null AND BillingCountry != null'
+            : 'BillingStreet = null OR BillingPostalCode = null OR BillingCity = null OR BillingCountry = null';
+        return new Accounts(
+            (List<Account>) Database.query(
+                newQueryFactory()
+                .setCondition(condition)
+                .setLimit(recordLimit)
+                .setOrdering(orderByField, fflib_QueryFactory.SortOrder.DESCENDING, true)
+                .toSOQL()
+            )
         );
     }
 }
