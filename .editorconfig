@@ -9,7 +9,7 @@ trim_trailing_whitespace = true
 
 [{*.js,*.json,*.prettierrc,*.yml}]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 # This is required to exclude these files from .editorconfig
 [{*.resource,README.md}]

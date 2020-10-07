@@ -11,7 +11,7 @@
         <div class="slds-var-p-around_small">
             <lightning-datatable
                 key-field="id"
-                columns={columnsWithAddress}
+                columns={columns}
                 data={dataWithAddress}
                 hide-checkbox-column=true>
             </lightning-datatable>
@@ -29,7 +29,7 @@
         <div class="slds-var-p-around_small">
             <lightning-datatable
                 key-field="id"
-                columns={columnsWithoutAddress}
+                columns={columnsWithGetAddressButton}
                 data={dataWithoutAddress}
                 hide-checkbox-column=true>
             </lightning-datatable>
