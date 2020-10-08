@@ -54,9 +54,13 @@ export default class CompanyAddressManager extends LightningElement {
                 accountName: companyName
             })
             .then(result => {
+                let variantType = 'success';
+                if (result !== 'Success') {
+                    variantType = 'warning';
+                }
                 const evt = new ShowToastEvent({
                     title: result,
-                    variant: 'success',
+                    variant: variantType,
                     mode: 'dismissable'
                 });
                 this.dispatchEvent(evt);
