@@ -61,9 +61,9 @@ public inherited sharing class GooglePlacesService {
             // example: Twijnstraat 3, 3511 ZG Utrecht, Netherlands
             List<String> addressfields = formattedAddress.split(',');
             this.street = addressfields[0];
-            this.postalCode = addressfields[1].left(8).trim();
+            this.postalCode = addressfields[1].left(8).deleteWhitespace();
             this.city = addressfields[1].substring(8, addressfields[1].length()).trim();
-            this.country = addressfields[2];
+            this.country = addressfields[2].trim();
         }
     }
 }
