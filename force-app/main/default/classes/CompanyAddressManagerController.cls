@@ -12,54 +12,53 @@ public with sharing class CompanyAddressManagerController {
 
     @AuraEnabled
     public static String searchAddressForAccount(Id recordId, String accountName) {
-        String ret;
-        GooglePlacesService.GooglePlacesResponse response;
+        GooglePlacesService.RetrievedGooglePlace response;
         try {
             response = GooglePlacesService.getInstance().placeSearch(accountName);
         } catch (Exception e) {
-            throw new CompanyAddressManagerControllerException(e.getMessage() + e.getStackTraceString());
+            throw new CompanyAddressManagerControllerException(
+                'Something went wrong in retrieving the address results from Google.' + e.getMessage() + e.getStackTraceString());
+        }
+
+        if (response.status != 'OK' && response.status != 'ZERO_RESULTS') {
+            throw new CompanyAddressManagerControllerException(
+                'Something went wrong in retrieving the address results from Google. The response is:' + response
+            );
         }
 
         fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(new List<SObjectType> {Account.SObjectType});
-        Account accountToUpdate = new Account(Id = recordId, AddressCheckedWithGooglePlaceAPI__c = true);
-        uow.registerDirty(accountToUpdate);
+        Accounts accounts = makeAccounts(recordId);
 
-        switch on response.status {
-            when 'OK' {
-                try {
-                    accountToUpdate = applyGoogleResponse(accountToUpdate, response.candidates[0].formatted_address);
-                    ret = 'Success';
-                } catch (Exception e) {
-                    throw new CompanyAddressManagerControllerException(
-                        'Something went wrong in translating the Google result to a Dutch address format. ' +
-                        'The response was: ' + response.candidates
-                    );
-                }
-            }
-            when 'ZERO_RESULTS' {
-                ret = 'No address has been found';
-            }
-            when else {
-                throw new CompanyAddressManagerControllerException(
-                    'Something went wrong in retrieving the address results from Google. The response is:' +
-                    response
-                );
-            }
+        try {
+                accounts.applyAddress(convertGoogleResponseToUpdateAddressCommand(response), uow);
+        } catch (Exception e) {
+            throw new CompanyAddressManagerControllerException(
+                'Something went wrong in updating the record in Salesforce. Response from Google: +' + response
+            );
         }
-
-        uow.commitWork();
-        return ret;
+        return response.status == 'OK' ? 'Success' : 'No address has been found';
     }
 
-    @testVisible
-    private static Account applyGoogleResponse(Account acc, String formattedAddress) {
-        // example: Twijnstraat 3, 3511 ZG Utrecht, Netherlands"
-        List<String> addressfields = formattedAddress.split(',');
-        acc.BillingStreet = addressfields[0];
-        acc.BillingPostalCode = addressfields[1].left(8).trim();
-        acc.BillingCity = addressfields[1].substring(8, addressfields[1].length()).trim();
-        acc.BillingCountry = addressfields[2];
-        return acc;
+    private static Accounts makeAccounts(Id recordId) {
+        return new Accounts(
+            new List<Account>{
+                new Account(
+                    Id = recordId,
+                    AddressCheckedWithGooglePlaceAPI__c = true
+                )
+            }
+        );
+    }
+
+    private static Accounts.applyAddressCommand convertGoogleResponseToUpdateAddressCommand(GooglePlacesService.RetrievedGooglePlace retrievedGooglePlace) {
+        Accounts.applyAddressCommand command = new Accounts.applyAddressCommand();
+        if (retrievedGooglePlace.status == 'OK') {
+            command.billingStreet = retrievedGooglePlace.street;
+            command.billingPostalCode = retrievedGooglePlace.postalCode;
+            command.billingCity = retrievedGooglePlace.city;
+            command.billingCountry = retrievedGooglePlace.country;
+        }
+        return command;
     }
 
     public class CompanyAddressManagerControllerException extends Exception {}
