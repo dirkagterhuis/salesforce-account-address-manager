@@ -17,7 +17,8 @@ public with sharing class CompanyAddressManagerController {
             response = GooglePlacesService.getInstance().placeSearch(accountName);
         } catch (Exception e) {
             throw new CompanyAddressManagerControllerException(
-                'Something went wrong in retrieving the address results from Google.' + e.getMessage() + e.getStackTraceString());
+                'Something went wrong in retrieving the address results from Google.' + e.getMessage() + e.getStackTraceString()
+            );
         }
 
         if (response.status != 'OK' && response.status != 'ZERO_RESULTS') {
@@ -30,7 +31,7 @@ public with sharing class CompanyAddressManagerController {
         Accounts accounts = makeAccounts(recordId);
 
         try {
-                accounts.applyAddress(convertGoogleResponseToUpdateAddressCommand(response), uow);
+            accounts.applyAddress(convertGoogleResponseToUpdateAddressCommand(response), uow);
         } catch (Exception e) {
             throw new CompanyAddressManagerControllerException(
                 'Something went wrong in updating the record in Salesforce. Response from Google: +' + response

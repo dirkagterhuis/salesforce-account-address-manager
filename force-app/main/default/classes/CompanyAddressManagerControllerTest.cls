@@ -27,5 +27,19 @@ private class CompanyAddressManagerControllerTest {
         System.assertEquals(1, mock.callCount.get('selectByContainingAddress'));
         System.assertEquals(RECORD_LIMIT, mock.args.get('selectByContainingAddress')[0]);
         System.assertEquals('CreatedDate', mock.args.get('selectByContainingAddress')[1]);
-        System.assertEquals(false, mock.args.get('selectByContainingAddress')[2]);    }
+        System.assertEquals(false, mock.args.get('selectByContainingAddress')[2]);
+    }
+
+        @isTest
+        static void searchAddressForAccount() {
+            Id fakeId = fflib_IDGenerator.generate(Account.getSObjectType());
+            GenericMock mock = new GenericMock();
+            mock.returns.put('placeSearch', null);
+            mock.returns.put('applyAddress', null);
+            GooglePlacesService.instance = (GooglePlacesService) Test.createStub(GooglePlacesService.class, mock);
+            // Accounts = (Accounts) Test.createStub(Accounts.class, mock);
+
+            CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
+
+        }
 }
