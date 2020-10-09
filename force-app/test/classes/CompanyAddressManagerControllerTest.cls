@@ -43,7 +43,6 @@ private class CompanyAddressManagerControllerTest {
         GooglePlacesService serviceMock = (GooglePlacesService) mocks.mock(GooglePlacesService.class);
         Accounts domainMock = (Accounts) mocks.mock(Accounts.class);
 
-        mocks.startStubbing();
         GooglePlacesService.RetrievedGooglePlace serviceResponse = new GooglePlacesService.RetrievedGooglePlace();
         serviceResponse.status = 'OK';
         serviceResponse.street = 'Twijnstraat 47';
@@ -55,12 +54,13 @@ private class CompanyAddressManagerControllerTest {
         command.billingPostalCode = serviceResponse.postalCode;
         command.billingCity = serviceResponse.city;
         command.billingCountry = serviceResponse.country;
-        fflib_ISObjectUnitOfWork uow = Application.UnitOfWork.newInstance();
 
+        mocks.startStubbing();
         mocks.when(serviceMock.placeSearch('Sierra Entertainment')).thenReturn(serviceResponse);
         mocks.when(domainMock.SObjectType()).thenReturn(Account.SObjectType);
-        // mocks.when(domainMock.applyAddress(command, uow)).thenReturn(null); //doesn't work
+        ((IAccounts) mocks.doAnswer(new ApplyAddressAnswer(), domainMock)).applyAddress(command, uowMock);
         mocks.stopStubbing();
+
         Application.Domain.setMock(domainMock);
         Application.UnitOfWork.setMock(uowMock);
         Application.Service.setMock(IGooglePlacesService.class, serviceMock);
@@ -68,8 +68,7 @@ private class CompanyAddressManagerControllerTest {
         String response = CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
 
         ((GooglePlacesService) mocks.verify(serviceMock)).placeSearch('Sierra Entertainment');
-        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uow);
-        //((fflib_ISObjectUnitOfWork) mocks.verify(uowMock, 1)).commitWork();
+        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uowMock);
         System.assertEquals('Success', response);
     }
 
@@ -82,16 +81,16 @@ private class CompanyAddressManagerControllerTest {
         GooglePlacesService serviceMock = (GooglePlacesService) mocks.mock(GooglePlacesService.class);
         Accounts domainMock = (Accounts) mocks.mock(Accounts.class);
 
-        mocks.startStubbing();
         GooglePlacesService.RetrievedGooglePlace serviceResponse = new GooglePlacesService.RetrievedGooglePlace();
         serviceResponse.status = 'ZERO_RESULTS';
         Accounts.ApplyAddressCommand command = new Accounts.ApplyAddressCommand();
-        fflib_ISObjectUnitOfWork uow = Application.UnitOfWork.newInstance();
 
+        mocks.startStubbing();
         mocks.when(serviceMock.placeSearch('Sierra Entertainment')).thenReturn(serviceResponse);
         mocks.when(domainMock.SObjectType()).thenReturn(Account.SObjectType);
-        // mocks.when(domainMock.applyAddress(command, uow)).thenReturn(null); //doesn't work
+        ((IAccounts) mocks.doAnswer(new ApplyAddressAnswer(), domainMock)).applyAddress(command, uowMock);
         mocks.stopStubbing();
+
         Application.Domain.setMock(domainMock);
         Application.UnitOfWork.setMock(uowMock);
         Application.Service.setMock(IGooglePlacesService.class, serviceMock);
@@ -99,8 +98,14 @@ private class CompanyAddressManagerControllerTest {
         String response = CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
 
         ((GooglePlacesService) mocks.verify(serviceMock)).placeSearch('Sierra Entertainment');
-        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uow);
-        //((fflib_ISObjectUnitOfWork) mocks.verify(uowMock, 1)).commitWork();
+        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uowMock);
         System.assertEquals('No address has been found', response);
+    }
+
+    public class ApplyAddressAnswer implements fflib_Answer {
+        public ApplyAddressAnswer() {}
+        public Object answer(fflib_InvocationOnMock invocation) {
+            return null;
+        }
     }
 }
