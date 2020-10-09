@@ -1,4 +1,8 @@
-public inherited sharing class Accounts extends fflib_SObjectDomain {
+public inherited sharing class Accounts extends fflib_SObjectDomain implements IAccounts {
+    public static IAccounts newInstance(List<Account> sObjectList) {
+        return (IAccounts) Application.Domain.newInstance(sObjectList);
+    }
+
     public Accounts(List<Account> sObjectList) {
         super(sObjectList);
     }
@@ -9,7 +13,7 @@ public inherited sharing class Accounts extends fflib_SObjectDomain {
         }
     }
 
-    public void applyAddress(applyAddressCommand command, fflib_SObjectUnitOfWork uow) {
+    public void applyAddress(ApplyAddressCommand command, fflib_ISObjectUnitOfWork uow) {
         for (Account account : (List<Account>) records) {
             putIfNotBlank(account, 'BillingStreet', command.billingStreet);
             putIfNotBlank(account, 'BillingPostalCode', command.billingPostalCode);
@@ -20,16 +24,14 @@ public inherited sharing class Accounts extends fflib_SObjectDomain {
         uow.commitWork();
     }
 
-    @testVisible
-    private void putIfNotBlank(Account account, String fieldName, String value) {
+    public void putIfNotBlank(Account account, String fieldName, String value) {
         if (String.isNotBlank(value)) account.put(fieldName, value);
     }
 
-    public class applyAddressCommand {
+    public class ApplyAddressCommand {
         public String billingStreet;
         public String billingPostalCode;
         public String billingCity;
         public String billingCountry;
     }
-
 }

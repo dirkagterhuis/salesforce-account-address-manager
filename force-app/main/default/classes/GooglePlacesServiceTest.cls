@@ -5,7 +5,8 @@ private class GooglePlacesServiceTest {
     static void placeSearch() {
         Test.setMock(HttpCalloutMock.class, new GooglePlacesResponseMock());
 
-        GooglePlacesService.RetrievedGooglePlace response = GooglePlacesService.getInstance().placeSearch('The best beer in town');
+        GooglePlacesService.RetrievedGooglePlace response = GooglePlacesService.newInstance().placeSearch('The best beer in town');
+
         System.assertEquals('OK', response.status);
         System.assertEquals('Twijnstraat 47', response.street);
         System.assertEquals('3511ZH', response.postalCode);

@@ -4,42 +4,103 @@ private class CompanyAddressManagerControllerTest {
 
     @isTest
     static void getNLastModifiedAccountsWithAddress() {
-        GenericMock mock = new GenericMock();
-        mock.returns.put('selectByContainingAddress', new Accounts(new List<Account>()));
-        AccountsSelector.instance = (AccountsSelector) Test.createStub(AccountsSelector.class, mock);
+        fflib_ApexMocks mocks = new fflib_ApexMocks();
+        AccountsSelector selectorMock = (AccountsSelector) mocks.mock(AccountsSelector.class);
+
+        mocks.startStubbing();
+        mocks.when(selectorMock.SObjectType()).thenReturn(Account.SObjectType);
+        mocks.when(selectorMock.selectByContainingAddress(RECORD_LIMIT, 'LastModifiedDate', true)).thenReturn(new List<Account>());
+        mocks.stopStubbing();
+        Application.Selector.setMock(selectorMock);
 
         CompanyAddressManagerController.getNLastModifiedAccountsWithAddress(RECORD_LIMIT);
 
-        System.assertEquals(1, mock.callCount.get('selectByContainingAddress'));
-        System.assertEquals(RECORD_LIMIT, mock.args.get('selectByContainingAddress')[0]);
-        System.assertEquals('LastModifiedDate', mock.args.get('selectByContainingAddress')[1]);
-        System.assertEquals(true, mock.args.get('selectByContainingAddress')[2]);
+        ((AccountsSelector) mocks.verify(selectorMock)).selectByContainingAddress(RECORD_LIMIT, 'LastModifiedDate', true);
     }
 
     @isTest
     static void getNLastCreatedAccountsWithoutAddress() {
-        GenericMock mock = new GenericMock();
-        mock.returns.put('selectByContainingAddress', new Accounts(new List<Account>()));
-        AccountsSelector.instance = (AccountsSelector) Test.createStub(AccountsSelector.class, mock);
+        fflib_ApexMocks mocks = new fflib_ApexMocks();
+        AccountsSelector selectorMock = (AccountsSelector) mocks.mock(AccountsSelector.class);
+
+        mocks.startStubbing();
+        mocks.when(selectorMock.SObjectType()).thenReturn(Account.SObjectType);
+        mocks.when(selectorMock.selectByContainingAddress(RECORD_LIMIT, 'CreatedDate', false)).thenReturn(new List<Account>());
+        mocks.stopStubbing();
+        Application.Selector.setMock(selectorMock);
 
         CompanyAddressManagerController.getNLastCreatedAccountsWithoutAddress(RECORD_LIMIT);
 
-        System.assertEquals(1, mock.callCount.get('selectByContainingAddress'));
-        System.assertEquals(RECORD_LIMIT, mock.args.get('selectByContainingAddress')[0]);
-        System.assertEquals('CreatedDate', mock.args.get('selectByContainingAddress')[1]);
-        System.assertEquals(false, mock.args.get('selectByContainingAddress')[2]);
+        ((AccountsSelector) mocks.verify(selectorMock)).selectByContainingAddress(RECORD_LIMIT, 'CreatedDate', false);
     }
 
-        @isTest
-        static void searchAddressForAccount() {
-            Id fakeId = fflib_IDGenerator.generate(Account.getSObjectType());
-            GenericMock mock = new GenericMock();
-            mock.returns.put('placeSearch', null);
-            mock.returns.put('applyAddress', null);
-            GooglePlacesService.instance = (GooglePlacesService) Test.createStub(GooglePlacesService.class, mock);
-            // Accounts = (Accounts) Test.createStub(Accounts.class, mock);
+    @isTest
+    static void searchAddressForAccount_success() {
+        Id fakeId = fflib_IDGenerator.generate(Account.getSObjectType());
 
-            CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
+        fflib_ApexMocks mocks = new fflib_ApexMocks();
+        fflib_SObjectUnitOfWork uowMock = (fflib_SObjectUnitOfWork) mocks.mock(fflib_SObjectUnitOfWork.class);
+        GooglePlacesService serviceMock = (GooglePlacesService) mocks.mock(GooglePlacesService.class);
+        Accounts domainMock = (Accounts) mocks.mock(Accounts.class);
 
-        }
+        mocks.startStubbing();
+        GooglePlacesService.RetrievedGooglePlace serviceResponse = new GooglePlacesService.RetrievedGooglePlace();
+        serviceResponse.status = 'OK';
+        serviceResponse.street = 'Twijnstraat 47';
+        serviceResponse.postalCode = '3566UI';
+        serviceResponse.city = 'Utrecht';
+        serviceResponse.country = 'Netherlands';
+        Accounts.ApplyAddressCommand command = new Accounts.ApplyAddressCommand();
+        command.billingStreet = serviceResponse.street;
+        command.billingPostalCode = serviceResponse.postalCode;
+        command.billingCity = serviceResponse.city;
+        command.billingCountry = serviceResponse.country;
+        fflib_ISObjectUnitOfWork uow = Application.UnitOfWork.newInstance();
+
+        mocks.when(serviceMock.placeSearch('Sierra Entertainment')).thenReturn(serviceResponse);
+        mocks.when(domainMock.SObjectType()).thenReturn(Account.SObjectType);
+        // mocks.when(domainMock.applyAddress(command, uow)).thenReturn(null); //doesn't work
+        mocks.stopStubbing();
+        Application.Domain.setMock(domainMock);
+        Application.UnitOfWork.setMock(uowMock);
+        Application.Service.setMock(IGooglePlacesService.class, serviceMock);
+
+        String response = CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
+
+        ((GooglePlacesService) mocks.verify(serviceMock)).placeSearch('Sierra Entertainment');
+        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uow);
+        //((fflib_ISObjectUnitOfWork) mocks.verify(uowMock, 1)).commitWork();
+        System.assertEquals('Success', response);
+    }
+
+    @isTest
+    static void searchAddressForAccount_noResults() {
+        Id fakeId = fflib_IDGenerator.generate(Account.getSObjectType());
+
+        fflib_ApexMocks mocks = new fflib_ApexMocks();
+        fflib_SObjectUnitOfWork uowMock = (fflib_SObjectUnitOfWork) mocks.mock(fflib_SObjectUnitOfWork.class);
+        GooglePlacesService serviceMock = (GooglePlacesService) mocks.mock(GooglePlacesService.class);
+        Accounts domainMock = (Accounts) mocks.mock(Accounts.class);
+
+        mocks.startStubbing();
+        GooglePlacesService.RetrievedGooglePlace serviceResponse = new GooglePlacesService.RetrievedGooglePlace();
+        serviceResponse.status = 'ZERO_RESULTS';
+        Accounts.ApplyAddressCommand command = new Accounts.ApplyAddressCommand();
+        fflib_ISObjectUnitOfWork uow = Application.UnitOfWork.newInstance();
+
+        mocks.when(serviceMock.placeSearch('Sierra Entertainment')).thenReturn(serviceResponse);
+        mocks.when(domainMock.SObjectType()).thenReturn(Account.SObjectType);
+        // mocks.when(domainMock.applyAddress(command, uow)).thenReturn(null); //doesn't work
+        mocks.stopStubbing();
+        Application.Domain.setMock(domainMock);
+        Application.UnitOfWork.setMock(uowMock);
+        Application.Service.setMock(IGooglePlacesService.class, serviceMock);
+
+        String response = CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
+
+        ((GooglePlacesService) mocks.verify(serviceMock)).placeSearch('Sierra Entertainment');
+        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uow);
+        //((fflib_ISObjectUnitOfWork) mocks.verify(uowMock, 1)).commitWork();
+        System.assertEquals('No address has been found', response);
+    }
 }

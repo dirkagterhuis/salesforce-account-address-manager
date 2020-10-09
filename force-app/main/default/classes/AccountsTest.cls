@@ -2,25 +2,12 @@
 private class AccountsTest {
 
     @isTest
-    static void construct() {
-        List<Account> accountsAsSObjects = new List<Account>{
-            new Account(
-                Name = 'Test'
-            )
-        };
-        System.assertEquals(
-            accountsAsSObjects,
-            new Accounts(accountsAsSObjects).records
-        );
-    }
-
-    @isTest
     static void applyAddress() {
-        fflib_SObjectUnitOfWork uow = new fflib_SObjectUnitOfWork(new List<SObjectType> {Account.SObjectType});
+        fflib_ISObjectUnitOfWork uow = Application.UnitOfWork.NewInstance();
         Account acc = new Account(Name = 'Freddy Kreuger Productions');
         insert acc;
-        Accounts accounts = new Accounts(new List<Account>{acc});
-        Accounts.applyAddressCommand command = new Accounts.applyAddressCommand();
+        IAccounts accounts = Accounts.newInstance(new List<Account>{acc});
+        Accounts.ApplyAddressCommand command = new Accounts.ApplyAddressCommand();
         command.billingStreet = 'Elm Street 7';
         command.billingPostalCode = '1000AA';
         command.billingCity = 'Amsterdam';
@@ -38,7 +25,7 @@ private class AccountsTest {
     @isTest
     static void putIfNotBlank() {
         Account acc = new Account();
-        new Accounts(new List<Account>{acc}).putIfNotBlank(acc, 'Name', 'I\'ve been put');
+        Accounts.newInstance(new List<Account>{acc}).putIfNotBlank(acc, 'Name', 'I\'ve been put');
         System.assertEquals(
             'I\'ve been put',
             acc.Name

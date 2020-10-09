@@ -1,12 +1,7 @@
-public inherited sharing class GooglePlacesService {
-    @testVisible
-    private static GooglePlacesService instance;
+public inherited sharing class GooglePlacesService implements IGooglePlacesService {
 
-    public static GooglePlacesService getInstance() {
-        if (instance == null) {
-            instance = new GooglePlacesService();
-        }
-        return instance;
+    public static IGooglePlacesService newInstance() {
+        return (IGooglePlacesService) Application.Service.newInstance(IGooglePlacesService.class);
     }
 
     public RetrievedGooglePlace placeSearch(String input) {
@@ -54,7 +49,7 @@ public inherited sharing class GooglePlacesService {
         public String city;
         public String country;
 
-        public RetrievedGooglePlace() { }
+        public RetrievedGooglePlace() {}
         public RetrievedGooglePlace(GooglePlacesResponse googleplacesResponse) {
             this.status = googleplacesResponse.status;
             String formattedAddress = googlePlacesResponse.candidates[0].formatted_address;
