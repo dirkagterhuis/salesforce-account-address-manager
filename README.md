@@ -54,9 +54,10 @@ For each company from the list that does not have an address, I want to be able 
 - Test JavaScript code using Jest.
 - Use OAuth instead of an api key.
 - fix the remaining failing 2 assertions: mocks aren't working properly. Idea: stub the SObject unit of work using a singleton pattern? There's probably a parameter different between the actual parameters being used, and the stubbed ones.
-  - Also call the helper method from the test directly, for making the command.
-  - Mock: call the helper method for making the command, and mock the uow?
-  - use singleton to override instantiation of UOW in controller?
+  - [X] Also call the helper method from the test directly, for making the command.
+  - [X] Mock: call the helper method for making the command, and mock the uow?
+  - [X] use singleton-like pattern to override instantiation of UOW in controller?
+  - ^ tried this, no luck yet.
   - [try resource](https://andyinthecloud.com/2016/06/26/working-with-apex-mocks-matchers-and-unit-of-work/)
 - There's an error if an address in a format other than Dutch is retrieved, which is too 'short':
     > Something went wrong in retrieving the address results from Google.List index out of bounds: 2Class.GooglePlacesService.RetrievedGooglePlace.<init>: line 61, column 1 Class.GooglePlacesService.placeSearch: line 31, column 1 Class.CompanyAddressManagerController.searchAddressForAccount: line 17, column 1

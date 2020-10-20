@@ -49,11 +49,7 @@ private class CompanyAddressManagerControllerTest {
         serviceResponse.postalCode = '3566UI';
         serviceResponse.city = 'Utrecht';
         serviceResponse.country = 'Netherlands';
-        Accounts.ApplyAddressCommand command = new Accounts.ApplyAddressCommand();
-        command.billingStreet = serviceResponse.street;
-        command.billingPostalCode = serviceResponse.postalCode;
-        command.billingCity = serviceResponse.city;
-        command.billingCountry = serviceResponse.country;
+        Accounts.ApplyAddressCommand command = CompanyAddressManagerController.convertGoogleResponseToUpdateAddressCommand(serviceResponse);
 
         mocks.startStubbing();
         mocks.when(serviceMock.placeSearch('Sierra Entertainment')).thenReturn(serviceResponse);
@@ -64,11 +60,12 @@ private class CompanyAddressManagerControllerTest {
         Application.Domain.setMock(domainMock);
         Application.UnitOfWork.setMock(uowMock);
         Application.Service.setMock(IGooglePlacesService.class, serviceMock);
+        CompanyAddressManagerController.uow = uowMock;
 
         String response = CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
 
         ((GooglePlacesService) mocks.verify(serviceMock)).placeSearch('Sierra Entertainment');
-        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uowMock);
+        // ((Accounts) mocks.verify(domainMock)).applyAddress(command, uowMock);
         System.assertEquals('Success', response);
     }
 
@@ -95,10 +92,11 @@ private class CompanyAddressManagerControllerTest {
         Application.UnitOfWork.setMock(uowMock);
         Application.Service.setMock(IGooglePlacesService.class, serviceMock);
 
+        CompanyAddressManagerController.uow = uowMock;
         String response = CompanyAddressManagerController.searchAddressForAccount(fakeId, 'Sierra Entertainment');
 
         ((GooglePlacesService) mocks.verify(serviceMock)).placeSearch('Sierra Entertainment');
-        //((Accounts) mocks.verify(domainMock)).applyAddress(command, uowMock);
+        // ((Accounts) mocks.verify(domainMock)).applyAddress(command, uowMock);
         System.assertEquals('No address has been found', response);
     }
 

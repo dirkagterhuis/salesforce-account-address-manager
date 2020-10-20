@@ -1,5 +1,8 @@
 public with sharing class CompanyAddressManagerController {
 
+    @testVisible
+    private static fflib_ISObjectUnitOfWork uow = Application.UnitOfWork.newInstance();
+
     @AuraEnabled
     public static List<Account> getNLastModifiedAccountsWithAddress(Integer recordLimit) {
         return AccountsSelector.newInstance().selectByContainingAddress(recordLimit, 'LastModifiedDate', true);
@@ -27,7 +30,6 @@ public with sharing class CompanyAddressManagerController {
             );
         }
 
-        fflib_ISObjectUnitOfWork uow = Application.UnitOfWork.newInstance();
         IAccounts accounts = makeAccounts(recordId);
 
         try {
@@ -51,6 +53,7 @@ public with sharing class CompanyAddressManagerController {
         );
     }
 
+    @testVisible
     private static Accounts.ApplyAddressCommand convertGoogleResponseToUpdateAddressCommand(GooglePlacesService.RetrievedGooglePlace retrievedGooglePlace) {
         Accounts.ApplyAddressCommand command = new Accounts.ApplyAddressCommand();
         if (retrievedGooglePlace.status == 'OK') {
