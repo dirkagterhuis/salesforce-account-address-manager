@@ -30,7 +30,6 @@ export default class CompanyAddressManager extends LightningElement {
     @api maxNumberOfAccountsWithAddress;
     @track dataWithAddress;
     @track dataWithoutAddress;
-    data = [];
     columns = columns;
     columnsWithGetAddressButton = columnsWithGetAddressButton;
 
@@ -46,12 +45,10 @@ export default class CompanyAddressManager extends LightningElement {
     }
 
     async callRowAction(event) {
-        const recordId = event.detail.row.Id;
-        const companyName = event.detail.row.Name;
         if (event.detail.action.name === 'getAddress') {
             searchAddressForAccount({
-                recordId: recordId,
-                accountName: companyName
+                recordId: event.detail.row.Id,
+                accountName: event.detail.row.Name
             })
             .then(result => {
                 let variantType = 'success';

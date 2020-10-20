@@ -53,9 +53,40 @@ For each company from the list that does not have an address, I want to be able 
 - Make company name editable in datatable.
 - Test JavaScript code using Jest.
 - Use OAuth instead of an api key.
+- fix the remaining failing 2 assertions: mocks aren't working properly. Idea: stub the SObject unit of work using a singleton pattern? There's probably a parameter different between the actual parameters being used, and the stubbed ones.
+  - Also call the helper method from the test directly, for making the command.
+  - Mock: call the helper method for making the command, and mock the uow?
+  - use singleton to override instantiation of UOW in controller?
+  - [try resource](https://andyinthecloud.com/2016/06/26/working-with-apex-mocks-matchers-and-unit-of-work/)
+- There's an error if an address in a format other than Dutch is retrieved, which is too 'short':
+    > Something went wrong in retrieving the address results from Google.List index out of bounds: 2Class.GooglePlacesService.RetrievedGooglePlace.<init>: line 61, column 1 Class.GooglePlacesService.placeSearch: line 31, column 1 Class.CompanyAddressManagerController.searchAddressForAccount: line 17, column 1
+
+    It won't always have all the strings when split by comma's. This can be improved by adding a check in the result and returning an error to the users if the format deviates from what is expected. Or, the user can view the response, split by comma, and for him/herself determine which response field is mapped to which account field
 
 ## Prerequisites for using this implementation
 - [FFLib ApexMocks](https://github.com/apex-enterprise-patterns/fflib-apex-mocks) and [FFLib Apex Common](https://github.com/apex-enterprise-patterns/fflib-apex-common) (these are not included in respository).
 - Set up the use of the [Google Places API](https://developers.google.com/places/web-service/search):
   - Add `maps.googleapis.com` to the Remote Site Settings
-  - Configure the API key in the (hierarchiy) custom settings `GooglePlacesAPI__c` in a field called `Key__c` as org defaults.
+  - Configure the API key in the (hierarchiy) custom settings `GooglePlacesAPI__c` in a field called `Key__c` as org def
+
+## Useful links
+- [getting data from apex](https://wipdeveloper.com/lwc-getting-data-from-apex)
+- [use data table](https://www.salesforcecodecrack.com/2019/10/display-reference-data-in-lwc.html)
+- [Datatable - component library](https://developer.salesforce.com/docs/component-library/bundle/lightning-datatable/example)
+- [datatable with buttons/row actions](https://www.infallibletechie.com/2020/03/lightning-datatable-with-buttonsrow.html)
+- [use button or checkbox in lwc data table](https://developer.salesforce.com/docs/component-library/bundle/lightning-datatable/documentation)
+- [data table with buttons](https://www.infallibletechie.com/2019/06/lightningdatatable-with-buttons-in.html)
+- [set up google place api](http://michaelsoriano.com/lightning-component-google-places/) or [here](https://hellosnl.blogspot.com/2017/09/salesforce-lightning-google-places-autocomplete-predictions-search.html) perhaps [here](https://niksdeveloper.com/salesforce/address-lookup-in-lightning-using-google-api/)
+- [api key example](https://simple-force.com/2018/02/03/best-practice-secure-api-keys-in-salesforce%E2%80%8A-%E2%80%8Aexample-google-firebase/) and [documentation](https://developer.salesforce.com/wiki/secure_coding_storing_secrets)
+- [authentication hwo to](https://salesforce.stackexchange.com/questions/217281/use-a-named-credential-with-api-key)
+- [google places api getting started](https://developers.google.com/maps/gmp-get-started#enable-api-sdk)
+- [google cloud console](https://console.cloud.google.com/google/maps-apis/credentials?project=analog-arbor-291706)
+- Apex DI/mocks:
+  - [article](http://jessealtman.com/2014/06/apexmocks-how-does-it-work/)
+  - [article 2](http://cropredysfdc.com/category/salesforce/apex-mocks/)
+  - [application example](https://github.com/apex-enterprise-patterns/fflib-apex-common-samplecode/blob/master/sfdx-source/apex-common-samplecode/main/classes/Application.cls)
+  - [test example](https://github.com/apex-enterprise-patterns/fflib-apex-common-samplecode/blob/master/sfdx-source/apex-common-samplecode/test/classes/controllers/OpportunityApplyDiscountControllerTest.cls#L40)
+  - apex enterprise patterns - force di
+  - [The one that is used](https://andyinthecloud.com/2015/03/22/unit-testing-with-apex-enterprise-patterns-and-apexmocks-part-1/) en [deze](https://andyinthecloud.com/2015/03/29/unit-testing-apex-enterprise-patterns-and-apexmocks-part-2/)
+  - [Some common reasons why your mocks aren't working](https://salesforce.stackexchange.com/questions/252460/my-apexmocks-arent-working-what-could-be-wrong)
+  - how to handle void methods in mocks [link](http://cropredysfdc.com/2019/05/03/apexmocks-answers-and-void-no-argument-domain-methods/)
